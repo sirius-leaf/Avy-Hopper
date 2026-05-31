@@ -10,7 +10,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed = 7f;
+
+    [Header("Double Jump")]
+    public int maxJumps = 2;
     public float jumpForce = 12f;
+    public float doubleJumpForce = 10f; // Bisa lebih kecil dari jump pertama
+    private int jumpsRemaining;
 
     [Header("Ground Check - Raycast")]
     public float rayLength = 0.1f; // Jarak ray ke bawah
@@ -20,27 +25,20 @@ public class PlayerMovement : MonoBehaviour
     [Header("Coyote Time & Jump Buffer")]
     public float coyoteTime = 0.15f;
     public float jumpBufferTime = 0.1f;
+    private float coyoteTimeCounter;
+    private float jumpBufferCounter;
 
     private Rigidbody2D rb;
-    private InputManager inputActions;
     private Collider2D col;
 
     private Vector2 moveInput;
-    private bool jumpPressed_;
     private bool isGrounded;
-    private float coyoteTimeCounter;
-    private float jumpBufferCounter;
+    private bool wasGrounded;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
-
-        inputActions = new InputManager();
-
-        // inputActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        // inputActions.Player.Move.canceled += ctx => moveInput = Vector2.zero;
-        // inputActions.Player.Jump.performed += ctx => jumpBufferCounter = jumpBufferTime;
     }
 
     void OnEnable()
@@ -51,8 +49,15 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         moveInput = move.action.ReadValue<Vector2>();
+        wasGrounded = isGrounded;
         isGrounded = IsGrounded();
         jumpBufferCounter -= Time.deltaTime;
+
+        if (!wasGrounded && isGrounded)
+            jumpsRemaining = maxJumps;
+
+        // if (isGrounded && jumpsRemaining == 0)
+        //     jumpsRemaining = maxJumps;
 
         if (isGrounded)
             coyoteTimeCounter = coyoteTime;
@@ -64,11 +69,20 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
 
-        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f) {
-            Debug.Log("jump");
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            jumpBufferCounter = 0f;
-            coyoteTimeCounter = 0f;
+        if (jumpBufferCounter > 0f)
+        {
+            if (coyoteTimeCounter > 0f && jumpsRemaining == maxJumps) {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                jumpBufferCounter = 0f;
+                coyoteTimeCounter = 0f;
+                jumpsRemaining--;
+            }
+            else if (jumpsRemaining > 0)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
+                jumpsRemaining--;
+            }
         }
     }
 
