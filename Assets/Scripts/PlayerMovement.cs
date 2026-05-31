@@ -11,10 +11,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 7f;
 
-    [Header("Double Jump")]
+    [Header("Jump")]
     public int maxJumps = 2;
     public float jumpForce = 12f;
-    public float doubleJumpForce = 10f; // Bisa lebih kecil dari jump pertama
+    public float doubleJumpForce = 10f;
+    public float jumpCutMultiplier = 0.5f;
+public float minJumpVelocity = 3f;
     private int jumpsRemaining;
 
     [Header("Ground Check - Raycast")]
@@ -34,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveInput;
     private bool isGrounded;
     private bool wasGrounded;
+    private bool jumpReleased;
 
     void Awake()
     {
@@ -43,7 +46,8 @@ public class PlayerMovement : MonoBehaviour
 
     void OnEnable()
     {
-        jump.action.started += Jump;
+        jump.action.started += OnJumpStart;
+        jump.action.canceled += OnJumpStop;
     }
 
     void Update()
@@ -53,22 +57,23 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = IsGrounded();
         jumpBufferCounter -= Time.deltaTime;
 
+        // Ground Checker
         if (!wasGrounded && isGrounded)
             jumpsRemaining = maxJumps;
-
-        // if (isGrounded && jumpsRemaining == 0)
-        //     jumpsRemaining = maxJumps;
 
         if (isGrounded)
             coyoteTimeCounter = coyoteTime;
         else
             coyoteTimeCounter -= Time.deltaTime;
-    }
 
-    void FixedUpdate()
-    {
+        // Movement Control
         rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
 
+        Jump();
+    }
+
+    void Jump()
+    {
         if (jumpBufferCounter > 0f)
         {
             if (coyoteTimeCounter > 0f && jumpsRemaining == maxJumps) {
@@ -84,6 +89,17 @@ public class PlayerMovement : MonoBehaviour
                 jumpsRemaining--;
             }
         }
+
+        if (jumpReleased && rb.linearVelocity.y > minJumpVelocity)
+        {
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                Mathf.Max(rb.linearVelocity.y * jumpCutMultiplier, minJumpVelocity)
+            );
+            
+        }
+        jumpReleased = false;
+
     }
 
     bool IsGrounded()
@@ -115,8 +131,13 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawRay(origin + rayOffset, Vector2.down * rayLength);
     }
 
-    private void Jump(InputAction.CallbackContext obj)
+    private void OnJumpStart(InputAction.CallbackContext obj)
     {
         jumpBufferCounter = jumpBufferTime;
+    }
+
+    private void OnJumpStop(InputAction.CallbackContext obj)
+    {
+        jumpReleased = true;
     }
 }
