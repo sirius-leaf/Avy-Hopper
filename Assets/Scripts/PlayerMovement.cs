@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 12f;
     public float doubleJumpForce = 10f;
     public float jumpCutMultiplier = 0.5f;
-public float minJumpVelocity = 3f;
+    public float minJumpVelocity = 3f;
     private int jumpsRemaining;
 
     [Header("Ground Check - Raycast")]
@@ -30,6 +30,9 @@ public float minJumpVelocity = 3f;
     private float coyoteTimeCounter;
     private float jumpBufferCounter;
 
+    [Header("Other")]
+    public Vector3 startPos;
+
     private Rigidbody2D rb;
     private Collider2D col;
 
@@ -42,6 +45,8 @@ public float minJumpVelocity = 3f;
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
+        jumpsRemaining = maxJumps;
     }
 
     void OnEnable()
@@ -50,8 +55,22 @@ public float minJumpVelocity = 3f;
         jump.action.canceled += OnJumpStop;
     }
 
+    void OnDisable()
+    {
+        jump.action.started -= OnJumpStart;
+        jump.action.canceled -= OnJumpStop;
+    }
+
     void Update()
     {
+        if (GameManager.IsPlayerTurn)
+        {
+            const float MOVE_SMOOTHING = 5;
+            transform.position = Vector3.Lerp(transform.position, startPos, Utils.ExpDecayT(MOVE_SMOOTHING));
+
+            return;
+        }
+
         moveInput = move.action.ReadValue<Vector2>();
         wasGrounded = isGrounded;
         isGrounded = IsGrounded();
@@ -72,7 +91,38 @@ public float minJumpVelocity = 3f;
         Jump();
     }
 
-    void Jump()
+    void OnDrawGizmosSelected()
+    {
+        if (col == null) col = GetComponent<Collider2D>();
+        if (col == null) return;
+
+        Vector2 origin = new(transform.position.x, col.bounds.min.y);
+
+        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Gizmos.DrawRay(origin, Vector2.down * rayLength);
+        Gizmos.DrawRay(origin - rayOffset, Vector2.down * rayLength);
+        Gizmos.DrawRay(origin + rayOffset, Vector2.down * rayLength);
+    }
+
+    private bool IsGrounded()
+    {
+        // Titik awal ray = bawah tengah collider
+        Vector2 origin = new(transform.position.x, col.bounds.min.y);
+
+        // 3 ray: tengah, kiri, kanan — lebih akurat di tepi platform
+        RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
+        RaycastHit2D hitLeft = Physics2D.Raycast(origin - rayOffset, Vector2.down, rayLength, groundLayer);
+        RaycastHit2D hitRight = Physics2D.Raycast(origin + rayOffset, Vector2.down, rayLength, groundLayer);
+
+        return hitCenter.collider != null
+	        || hitLeft.collider != null
+            || hitRight.collider!= null;
+    }
+
+    private void OnPlayerTurn() => this.enabled = false;
+    private void OnEnemyTurn() => this.enabled = true;
+
+    private void Jump()
     {
         if (jumpBufferCounter > 0f)
         {
@@ -100,35 +150,6 @@ public float minJumpVelocity = 3f;
         }
         jumpReleased = false;
 
-    }
-
-    bool IsGrounded()
-    {
-        // Titik awal ray = bawah tengah collider
-        Vector2 origin = new(transform.position.x, col.bounds.min.y);
-
-        // 3 ray: tengah, kiri, kanan — lebih akurat di tepi platform
-        RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
-        RaycastHit2D hitLeft = Physics2D.Raycast(origin - rayOffset, Vector2.down, rayLength, groundLayer);
-        RaycastHit2D hitRight = Physics2D.Raycast(origin + rayOffset, Vector2.down, rayLength, groundLayer);
-
-        return hitCenter.collider != null
-	        || hitLeft.collider != null
-            || hitRight.collider!= null;
-    }
-
-    // Visualisasi ray di Scene view
-    void OnDrawGizmosSelected()
-    {
-        if (col == null) col = GetComponent<Collider2D>();
-        if (col == null) return;
-
-        Vector2 origin = new(transform.position.x, col.bounds.min.y);
-
-        Gizmos.color = isGrounded ? Color.green : Color.red;
-        Gizmos.DrawRay(origin, Vector2.down * rayLength);
-        Gizmos.DrawRay(origin - rayOffset, Vector2.down * rayLength);
-        Gizmos.DrawRay(origin + rayOffset, Vector2.down * rayLength);
     }
 
     private void OnJumpStart(InputAction.CallbackContext obj)
