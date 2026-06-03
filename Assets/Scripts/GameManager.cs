@@ -5,10 +5,29 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    // Player Health Events
+    public static event Action<int> OnPlayerHealthChanged;
+    public static event Action OnPlayerDie;
+
+
+    // Turn Events
     public static event Action OnPlayerTurn;
     public static event Action OnEnemyTurn;
 
+    private static int _playerHealth;
     private static bool _isPlayerTurn;
+
+    public static int PlayerHealth
+    {
+        get => _playerHealth;
+        set
+        {
+            _playerHealth = Mathf.Max(0, value);
+
+            OnPlayerHealthChanged?.Invoke(_playerHealth);
+            if (_playerHealth == 0) OnPlayerDie?.Invoke();
+        }
+    }
 
     public static bool IsPlayerTurn
     {
@@ -25,8 +44,6 @@ public class GameManager : MonoBehaviour
     public void ToggleTurn()
     {
         IsPlayerTurn = !IsPlayerTurn;
-
-        Debug.Log(IsPlayerTurn);
     }
 
     void Awake()
@@ -39,5 +56,8 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // Set Default Value
+        IsPlayerTurn = true;
     }
 }

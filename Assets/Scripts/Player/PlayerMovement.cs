@@ -53,12 +53,18 @@ public class PlayerMovement : MonoBehaviour
     {
         jump.action.started += OnJumpStart;
         jump.action.canceled += OnJumpStop;
+
+        GameManager.OnPlayerTurn += OnPlayerTurn;
+        GameManager.OnEnemyTurn += OnEnemyTurn;
     }
 
     void OnDisable()
     {
         jump.action.started -= OnJumpStart;
         jump.action.canceled -= OnJumpStop;
+
+        GameManager.OnPlayerTurn -= OnPlayerTurn;
+        GameManager.OnEnemyTurn -= OnEnemyTurn;
     }
 
     void Update()
@@ -74,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
         moveInput = move.action.ReadValue<Vector2>();
         wasGrounded = isGrounded;
         isGrounded = IsGrounded();
-        jumpBufferCounter -= Time.deltaTime;
+        if (jumpBufferCounter > 0f) jumpBufferCounter -= Time.deltaTime;
 
         // Ground Checker
         if (!wasGrounded && isGrounded)
@@ -119,8 +125,17 @@ public class PlayerMovement : MonoBehaviour
             || hitRight.collider!= null;
     }
 
-    private void OnPlayerTurn() => this.enabled = false;
-    private void OnEnemyTurn() => this.enabled = true;
+    private void OnPlayerTurn()
+    {
+        rb.gravityScale = 0f;
+        rb.linearVelocity = Vector2.zero;
+    }
+    
+    private void OnEnemyTurn()
+    {
+        rb.gravityScale = 1f;
+        jumpBufferCounter = 0f;
+    }
 
     private void Jump()
     {
