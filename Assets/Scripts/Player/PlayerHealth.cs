@@ -6,24 +6,24 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 10;
     public float iframeDuration = 1f;
 
-    private SpriteRenderer sprite;
-    private float iframeTimer;
+    private SpriteRenderer _sprite;
+    private float _iframeTimer;
 
     void Awake()
     {
-        sprite = GetComponent<SpriteRenderer>();
+        _sprite = GetComponent<SpriteRenderer>();
     }
 
     void OnEnable() => GameManager.OnPlayerDie += OnPlayerDie;
     void OnDisable() => GameManager.OnPlayerDie -= OnPlayerDie;
 
-    void Start() => GameManager.PlayerHealth = maxHealth - 5;
+    void Start() => GameManager.PlayerHealth = maxHealth;
 
     void Update()
     {
-        if (iframeTimer > 0) iframeTimer -= Time.deltaTime;
+        if (_iframeTimer > 0) _iframeTimer -= Time.deltaTime;
         
-        sprite.color = iframeTimer > 0 ? Color.red : Color.white;
+        _sprite.color = _iframeTimer > 0 ? Color.red : Color.white;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -38,10 +38,10 @@ public class PlayerHealth : MonoBehaviour
 
     private void TakeDamage(int amount)
     {
-        if (iframeTimer > 0) return;
+        if (_iframeTimer > 0) return;
 
         GameManager.PlayerHealth -= amount;
-        iframeTimer = iframeDuration;
+        _iframeTimer = iframeDuration;
     }
 
     private void OnPlayerDie()

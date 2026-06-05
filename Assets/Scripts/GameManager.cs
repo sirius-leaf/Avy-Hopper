@@ -11,8 +11,7 @@ public class GameManager : MonoBehaviour
 
 
     // Turn Events
-    public static event Action OnPlayerTurn;
-    public static event Action OnEnemyTurn;
+    public static event Action<bool> OnPlayerTurnChanged;
 
     private static int _playerHealth;
     private static bool _isPlayerTurn;
@@ -36,8 +35,7 @@ public class GameManager : MonoBehaviour
         {
             _isPlayerTurn = value;
 
-            if (value) OnPlayerTurn?.Invoke();
-            else OnEnemyTurn?.Invoke();
+            OnPlayerTurnChanged?.Invoke(_isPlayerTurn);
         }
     }
 

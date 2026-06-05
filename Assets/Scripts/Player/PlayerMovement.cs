@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     public float doubleJumpForce = 10f;
     public float jumpCutMultiplier = 0.5f;
     public float minJumpVelocity = 3f;
-    private int jumpsRemaining;
+    private int _jumpsRemaining;
 
     [Header("Ground Check - Raycast")]
     public float rayLength = 0.1f; // Jarak ray ke bawah
@@ -27,8 +27,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Coyote Time & Jump Buffer")]
     public float coyoteTime = 0.15f;
     public float jumpBufferTime = 0.1f;
-    private float coyoteTimeCounter;
-    private float jumpBufferCounter;
+    private float _coyoteTimeCounter;
+    private float _jumpBufferCounter;
 
     [Header("Other")]
     public Vector3 startPos;
@@ -36,17 +36,17 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D col;
 
-    private Vector2 moveInput;
-    private bool isGrounded;
-    private bool wasGrounded;
-    private bool jumpReleased;
+    private Vector2 _moveInput;
+    private bool _isGrounded;
+    private bool _wasGrounded;
+    private bool _jumpReleased;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
 
-        jumpsRemaining = maxJumps;
+        _jumpsRemaining = maxJumps;
     }
 
     void OnEnable()
@@ -54,17 +54,13 @@ public class PlayerMovement : MonoBehaviour
         jump.action.started += OnJumpStart;
         jump.action.canceled += OnJumpStop;
 
-        GameManager.OnPlayerTurn += OnPlayerTurn;
-        GameManager.OnEnemyTurn += OnEnemyTurn;
+        GameManager.OnPlayerTurnChanged += OnPlayerTurnChanged;
     }
 
     void OnDisable()
     {
         jump.action.started -= OnJumpStart;
         jump.action.canceled -= OnJumpStop;
-
-        GameManager.OnPlayerTurn -= OnPlayerTurn;
-        GameManager.OnEnemyTurn -= OnEnemyTurn;
     }
 
     void Update()
@@ -77,22 +73,22 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        moveInput = move.action.ReadValue<Vector2>();
-        wasGrounded = isGrounded;
-        isGrounded = IsGrounded();
-        if (jumpBufferCounter > 0f) jumpBufferCounter -= Time.deltaTime;
+        _moveInput = move.action.ReadValue<Vector2>();
+        _wasGrounded = _isGrounded;
+        _isGrounded = _IsGrounded();
+        if (_jumpBufferCounter > 0f) _jumpBufferCounter -= Time.deltaTime;
 
         // Ground Checker
-        if (!wasGrounded && isGrounded)
-            jumpsRemaining = maxJumps;
+        if (!_wasGrounded && _isGrounded)
+            _jumpsRemaining = maxJumps;
 
-        if (isGrounded)
-            coyoteTimeCounter = coyoteTime;
+        if (_isGrounded)
+            _coyoteTimeCounter = coyoteTime;
         else
-            coyoteTimeCounter -= Time.deltaTime;
+            _coyoteTimeCounter -= Time.deltaTime;
 
         // Movement Control
-        rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, rb.linearVelocity.y);
 
         Jump();
     }
@@ -104,13 +100,13 @@ public class PlayerMovement : MonoBehaviour
 
         Vector2 origin = new(transform.position.x, col.bounds.min.y);
 
-        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Gizmos.color = _isGrounded ? Color.green : Color.red;
         Gizmos.DrawRay(origin, Vector2.down * rayLength);
         Gizmos.DrawRay(origin - rayOffset, Vector2.down * rayLength);
         Gizmos.DrawRay(origin + rayOffset, Vector2.down * rayLength);
     }
 
-    private bool IsGrounded()
+    private bool _IsGrounded()
     {
         // Titik awal ray = bawah tengah collider
         Vector2 origin = new(transform.position.x, col.bounds.min.y);
@@ -125,37 +121,39 @@ public class PlayerMovement : MonoBehaviour
             || hitRight.collider!= null;
     }
 
-    private void OnPlayerTurn()
+    private void OnPlayerTurnChanged(bool playerTurn)
     {
-        rb.gravityScale = 0f;
-        rb.linearVelocity = Vector2.zero;
-    }
-    
-    private void OnEnemyTurn()
-    {
-        rb.gravityScale = 1f;
-        jumpBufferCounter = 0f;
+        if (playerTurn)
+        {
+            rb.gravityScale = 0f;
+            rb.linearVelocity = Vector2.zero;
+        }
+        else
+        {
+            rb.gravityScale = 1f;
+            _jumpBufferCounter = 0f;
+        }
     }
 
     private void Jump()
     {
-        if (jumpBufferCounter > 0f)
+        if (_jumpBufferCounter > 0f)
         {
-            if (coyoteTimeCounter > 0f && jumpsRemaining == maxJumps) {
+            if (_coyoteTimeCounter > 0f && _jumpsRemaining == maxJumps) {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-                jumpBufferCounter = 0f;
-                coyoteTimeCounter = 0f;
-                jumpsRemaining--;
+                _jumpBufferCounter = 0f;
+                _coyoteTimeCounter = 0f;
+                _jumpsRemaining--;
             }
-            else if (jumpsRemaining > 0)
+            else if (_jumpsRemaining > 0)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
-                jumpsRemaining--;
+                _jumpsRemaining--;
             }
         }
 
-        if (jumpReleased && rb.linearVelocity.y > minJumpVelocity)
+        if (_jumpReleased && rb.linearVelocity.y > minJumpVelocity)
         {
             rb.linearVelocity = new Vector2(
                 rb.linearVelocity.x,
@@ -163,17 +161,17 @@ public class PlayerMovement : MonoBehaviour
             );
             
         }
-        jumpReleased = false;
+        _jumpReleased = false;
 
     }
 
     private void OnJumpStart(InputAction.CallbackContext obj)
     {
-        jumpBufferCounter = jumpBufferTime;
+        _jumpBufferCounter = jumpBufferTime;
     }
 
     private void OnJumpStop(InputAction.CallbackContext obj)
     {
-        jumpReleased = true;
+        _jumpReleased = true;
     }
 }
