@@ -1,21 +1,32 @@
 using UnityEngine;
-
 [RequireComponent(typeof(SpriteRenderer))]
+
+[RequireComponent(typeof(PlayerAttack))]
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 10;
     public float iframeDuration = 1f;
 
     private SpriteRenderer _sprite;
+    private PlayerAttack _playerAttack;
     private float _iframeTimer;
 
     void Awake()
     {
         _sprite = GetComponent<SpriteRenderer>();
+        _playerAttack = GetComponent<PlayerAttack>();
     }
 
-    void OnEnable() => GameManager.OnPlayerDie += OnPlayerDie;
-    void OnDisable() => GameManager.OnPlayerDie -= OnPlayerDie;
+    void OnEnable()
+    {
+        GameManager.OnPlayerDie += OnPlayerDie;
+        _playerAttack.OnHasHitEnemyChanged += OnHasHitEnemyChanged;
+    }
+    void OnDisable()
+    {
+        GameManager.OnPlayerDie -= OnPlayerDie;
+        _playerAttack.OnHasHitEnemyChanged -= OnHasHitEnemyChanged;
+    }
 
     void Start() => GameManager.PlayerHealth = maxHealth;
 
@@ -28,6 +39,8 @@ public class PlayerHealth : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        if (_playerAttack.HasHitEnemy) return;
+
         switch (collision.tag)
         {
             case "Hazard":
@@ -42,6 +55,11 @@ public class PlayerHealth : MonoBehaviour
 
         GameManager.PlayerHealth -= amount;
         _iframeTimer = iframeDuration;
+    }
+
+    private void OnHasHitEnemyChanged(bool hasHitEnemy)
+    {
+        gameObject.tag = hasHitEnemy ? "IgnoreCollision" : "Player";
     }
 
     private void OnPlayerDie()

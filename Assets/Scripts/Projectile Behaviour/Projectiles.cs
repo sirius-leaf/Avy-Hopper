@@ -29,6 +29,8 @@ public class Projectiles : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.CompareTag("IgnoreCollision")) return;
+        
         _hitEffect?.OnHit(other);
         Destroy(gameObject);
     }

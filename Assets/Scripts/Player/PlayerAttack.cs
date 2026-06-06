@@ -1,19 +1,41 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
-[RequireComponent(typeof(Collider2D))]
 public class PlayerAttack : MonoBehaviour
 {
+    [Header("Attack Properties")]
     public InputActionReference attack;
     public LayerMask enemyLayer;
     public float chargeDuration = 3;
     public int damage = 10;
+    public float weight = 1f;
 
-    private Collider2D _col;
+    [Header("Attack Damage Visual")]
+    public Transform leftAttackDamageVisual;
+    public Transform rightAttackDamageVisual;
+    public AnimationCurve damageMultiplierCurve;
+    public float attackDamageVisualDuration = 1.5f;
+    private float _attackDamageVisualProgress = 0f;
+    private float _weightedAttackDamageVisualProgress = 0f;
+    
+    public event Action<bool> OnHasHitEnemyChanged;
+    private bool _hasHitEnemy;
+    public bool HasHitEnemy
+    {
+        get => _hasHitEnemy;
+        private set
+        {
+            _hasHitEnemy = value;
+
+            OnHasHitEnemyChanged?.Invoke(_hasHitEnemy);
+        }
+    }
+
+    private EnemyHealth _enemy;
 
     void Awake()
     {
-        _col = GetComponent<Collider2D>();
     }
 
     void OnEnable()
@@ -30,8 +52,22 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
-        if (!GameManager.IsPlayerTurn)
-            GameManager.PlayerAttackCharge += Time.deltaTime / chargeDuration;
+        if (GameManager.IsPlayerTurn) return;
+        else GameManager.PlayerAttackCharge += Time.deltaTime / chargeDuration;
+        
+        if(HasHitEnemy)
+        {
+            leftAttackDamageVisual.gameObject.SetActive(true);
+            rightAttackDamageVisual.gameObject.SetActive(true);
+            
+            _attackDamageVisualProgress += Time.deltaTime / attackDamageVisualDuration;
+            _weightedAttackDamageVisualProgress = Mathf.Pow(_attackDamageVisualProgress, weight);
+
+            if (_attackDamageVisualProgress > 1f) GameManager.IsPlayerTurn = true;
+            
+            leftAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, _weightedAttackDamageVisualProgress * -135f);
+            rightAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, _weightedAttackDamageVisualProgress * 135f);
+        }
     }
 
     private RaycastHit2D HitEnemy()
@@ -45,26 +81,46 @@ public class PlayerAttack : MonoBehaviour
     {
         if (GameManager.PlayerAttackCharge >= 1f)
         {
-            RaycastHit2D hitEnemy = HitEnemy();
-
-            if (hitEnemy.collider != null)
+            if (!HasHitEnemy)
             {
-                GameObject enemy = hitEnemy.collider.gameObject;
+                RaycastHit2D hitEnemy = HitEnemy();
 
-                enemy.GetComponent<EnemyHealth>().TakeDamage(damage);
-                Debug.Log("Hit!");
+                if (hitEnemy.collider != null)
+                {
+                    _enemy = hitEnemy.collider.gameObject.GetComponent<EnemyHealth>();
+                    HasHitEnemy = true;
+                }
+                else
+                {
+                    Debug.Log("Miss!");
+                    GameManager.IsPlayerTurn = true;
+                }
             }
             else
             {
-                Debug.Log("Miss!");
+                float damageMultiplier = damageMultiplierCurve.Evaluate(_weightedAttackDamageVisualProgress);
+                int damageGiven = Mathf.CeilToInt(damage * damageMultiplier);
+
+                _enemy.TakeDamage(damageGiven);
+                Debug.Log(damageGiven);
+                GameManager.IsPlayerTurn = true;
             }
-            
-            GameManager.IsPlayerTurn = true;
         }
     }
 
     private void OnPlayerTurnChanged(bool isPlayerTurn)
     {
-        if (isPlayerTurn) GameManager.PlayerAttackCharge = 0f;
+        if (isPlayerTurn)
+        {
+            leftAttackDamageVisual.gameObject.SetActive(false);
+            rightAttackDamageVisual.gameObject.SetActive(false);
+
+            leftAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, 0f);
+            rightAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, 0f);
+
+            HasHitEnemy = false;
+            _attackDamageVisualProgress = 0f;
+            GameManager.PlayerAttackCharge = 0f;
+        }
     }
 }
