@@ -67,8 +67,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (GameManager.IsPlayerTurn)
         {
-            const float MOVE_SMOOTHING = 5;
-            transform.position = Vector3.Lerp(transform.position, startPos, Utils.ExpDecayT(MOVE_SMOOTHING));
+            transform.position = Vector3.Lerp(transform.position, startPos, Utils.ExpDecayT(5f));
 
             return;
         }
