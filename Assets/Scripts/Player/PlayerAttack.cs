@@ -7,6 +7,7 @@ public class PlayerAttack : MonoBehaviour
     public InputActionReference attack;
     public LayerMask enemyLayer;
     public float chargeDuration = 3;
+    public int damage = 10;
 
     private Collider2D _col;
 
@@ -48,6 +49,9 @@ public class PlayerAttack : MonoBehaviour
 
             if (hitEnemy.collider != null)
             {
+                GameObject enemy = hitEnemy.collider.gameObject;
+
+                enemy.GetComponent<EnemyHealth>().TakeDamage(damage);
                 Debug.Log("Hit!");
             }
             else
