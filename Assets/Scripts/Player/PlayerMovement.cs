@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
 [RequireComponent(typeof(Rigidbody2D))]
+
+[RequireComponent(typeof(Collider2D))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Input")]
@@ -33,8 +34,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Other")]
     public Vector3 startPos;
 
-    private Rigidbody2D rb;
-    private Collider2D col;
+    private Rigidbody2D _rb;
+    private Collider2D _col;
 
     private Vector2 _moveInput;
     private bool _isGrounded;
@@ -43,8 +44,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        col = GetComponent<Collider2D>();
+        _rb = GetComponent<Rigidbody2D>();
+        _col = GetComponent<Collider2D>();
 
         _jumpsRemaining = maxJumps;
     }
@@ -87,17 +88,17 @@ public class PlayerMovement : MonoBehaviour
             _coyoteTimeCounter -= Time.deltaTime;
 
         // Movement Control
-        rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, rb.linearVelocity.y);
+        _rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, _rb.linearVelocity.y);
 
         Jump();
     }
 
     void OnDrawGizmosSelected()
     {
-        if (col == null) col = GetComponent<Collider2D>();
-        if (col == null) return;
+        if (_col == null) _col = GetComponent<Collider2D>();
+        if (_col == null) return;
 
-        Vector2 origin = new(transform.position.x, col.bounds.min.y);
+        Vector2 origin = new(transform.position.x, _col.bounds.min.y);
 
         Gizmos.color = _isGrounded ? Color.green : Color.red;
         Gizmos.DrawRay(origin, Vector2.down * rayLength);
@@ -108,7 +109,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _IsGrounded()
     {
         // Titik awal ray = bawah tengah collider
-        Vector2 origin = new(transform.position.x, col.bounds.min.y);
+        Vector2 origin = new(transform.position.x, _col.bounds.min.y);
 
         // 3 ray: tengah, kiri, kanan — lebih akurat di tepi platform
         RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
@@ -124,12 +125,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (playerTurn)
         {
-            rb.gravityScale = 0f;
-            rb.linearVelocity = Vector2.zero;
+            _rb.gravityScale = 0f;
+            _rb.linearVelocity = Vector2.zero;
         }
         else
         {
-            rb.gravityScale = 1f;
+            _rb.gravityScale = 1f;
             _jumpBufferCounter = 0f;
         }
     }
@@ -139,24 +140,24 @@ public class PlayerMovement : MonoBehaviour
         if (_jumpBufferCounter > 0f)
         {
             if (_coyoteTimeCounter > 0f && _jumpsRemaining == maxJumps) {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
                 _jumpBufferCounter = 0f;
                 _coyoteTimeCounter = 0f;
                 _jumpsRemaining--;
             }
             else if (_jumpsRemaining > 0)
             {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
+                _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0f);
+                _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, doubleJumpForce);
                 _jumpsRemaining--;
             }
         }
 
-        if (_jumpReleased && rb.linearVelocity.y > minJumpVelocity)
+        if (_jumpReleased && _rb.linearVelocity.y > minJumpVelocity)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                Mathf.Max(rb.linearVelocity.y * jumpCutMultiplier, minJumpVelocity)
+            _rb.linearVelocity = new Vector2(
+                _rb.linearVelocity.x,
+                Mathf.Max(_rb.linearVelocity.y * jumpCutMultiplier, minJumpVelocity)
             );
             
         }
