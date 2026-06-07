@@ -49,10 +49,6 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-    }
-
     void OnEnable()
     {
         attack.action.started += OnAttackStarted;

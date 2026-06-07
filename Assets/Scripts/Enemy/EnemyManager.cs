@@ -1,14 +1,22 @@
+using System.Linq;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
+    public EncounterData encounterData;
     public GameObject[] enemies = new GameObject[3];
 
     private UiManager _ui;
 
     void Awake()
     {
-        _ui = Object.FindFirstObjectByType<UiManager>();
+        _ui = FindFirstObjectByType<UiManager>();
+
+        if (encounterData.enemyPrefabs.Any(item => item != null))
+        {
+            enemies = encounterData.enemyPrefabs;
+            encounterData.ClearData();
+        }
 
         int enemyPos = 0;
         for (int i = 0; i < 3; i++)

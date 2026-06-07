@@ -3,6 +3,11 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour
 {
+    [Header("Platformer Mode Camera")]
+    public bool isPlatformerMode = false;
+    public Transform cameraFollowTarget;
+    public float cameraFollowSmoothness = 5f;
+
     [Header("Player Turn Transform")]
     public Vector3 playerTurnPos;
     public float playerTurnSize;
@@ -15,6 +20,8 @@ public class CameraController : MonoBehaviour
 
     void Awake()
     {
+        if (isPlatformerMode) return;
+        
         _cam = GetComponent<Camera>();
 
         transform.position = playerTurnPos;
@@ -23,11 +30,18 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        Vector3 currentTurnPos = BattleManager.Instance.IsPlayerTurn ? playerTurnPos : enemyTurnPos;
-        float currentTurnSize = BattleManager.Instance.IsPlayerTurn ? playerTurnSize : enemyTurnSize;
+        if (isPlatformerMode)
+        {
+            transform.position = Vector3.Lerp(transform.position, new Vector3(cameraFollowTarget.position.x, cameraFollowTarget.position.y, -10f), Utils.ExpDecayT(cameraFollowSmoothness));
+        }
+        else
+        {
+            Vector3 currentTurnPos = BattleManager.Instance.IsPlayerTurn ? playerTurnPos : enemyTurnPos;
+            float currentTurnSize = BattleManager.Instance.IsPlayerTurn ? playerTurnSize : enemyTurnSize;
 
-        float expDecayValue = Utils.ExpDecayT(5f);
-        transform.position = Vector3.Lerp(transform.position, currentTurnPos, expDecayValue);
-        _cam.orthographicSize = Mathf.Lerp(_cam.orthographicSize, currentTurnSize, expDecayValue);
+            float expDecayValue = Utils.ExpDecayT(5f);
+            transform.position = Vector3.Lerp(transform.position, currentTurnPos, expDecayValue);
+            _cam.orthographicSize = Mathf.Lerp(_cam.orthographicSize, currentTurnSize, expDecayValue);
+        }
     }
 }
