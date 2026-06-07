@@ -21,7 +21,7 @@ public class ProjectileSpawner : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.IsPlayerTurn) return;
+        if (BattleManager.Instance.IsPlayerTurn) return;
 
         if (_spawnTimer >= _currentSpawnInterval)
         {

@@ -4,12 +4,16 @@ using System;
 
 public class PlayerAttack : MonoBehaviour
 {
+    public event Action<bool> OnHasHitEnemyChanged;
+    public event Action<float> OnPlayerAttackChargeChanged;
+
     [Header("Attack Properties")]
     public InputActionReference attack;
     public LayerMask enemyLayer;
     public float chargeDuration = 3;
     public int damage = 10;
     public float weight = 1f;
+    
 
     [Header("Attack Damage Visual")]
     public Transform leftAttackDamageVisual;
@@ -19,8 +23,10 @@ public class PlayerAttack : MonoBehaviour
     private float _attackDamageVisualProgress = 0f;
     private float _weightedAttackDamageVisualProgress = 0f;
     
-    public event Action<bool> OnHasHitEnemyChanged;
+    private EnemyHealth _enemy;
     private bool _hasHitEnemy;
+    private float _playerAttackCharge;
+
     public bool HasHitEnemy
     {
         get => _hasHitEnemy;
@@ -32,7 +38,16 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    private EnemyHealth _enemy;
+    public float PlayerAttackCharge
+    {
+        get => _playerAttackCharge;
+        set
+        {
+            _playerAttackCharge = Mathf.Clamp(value, 0f, 1f);
+
+            OnPlayerAttackChargeChanged?.Invoke(_playerAttackCharge);
+        }
+    }
 
     void Awake()
     {
@@ -41,19 +56,19 @@ public class PlayerAttack : MonoBehaviour
     void OnEnable()
     {
         attack.action.started += OnAttackStarted;
-        GameManager.OnPlayerTurnChanged += OnPlayerTurnChanged;
+        BattleManager.Instance.OnPlayerTurnChanged += OnPlayerTurnChanged;
     }
 
     void OnDisable()
     {
         attack.action.started -= OnAttackStarted;
-        GameManager.OnPlayerTurnChanged -= OnPlayerTurnChanged;
+        BattleManager.Instance.OnPlayerTurnChanged -= OnPlayerTurnChanged;
     }
 
     void Update()
     {
-        if (GameManager.IsPlayerTurn) return;
-        else GameManager.PlayerAttackCharge += Time.deltaTime / chargeDuration;
+        if (BattleManager.Instance.IsPlayerTurn) return;
+        else PlayerAttackCharge += Time.deltaTime / chargeDuration;
         
         if(HasHitEnemy)
         {
@@ -63,7 +78,7 @@ public class PlayerAttack : MonoBehaviour
             _attackDamageVisualProgress += Time.deltaTime / attackDamageVisualDuration;
             _weightedAttackDamageVisualProgress = Mathf.Pow(_attackDamageVisualProgress, weight);
 
-            if (_attackDamageVisualProgress > 1f) GameManager.IsPlayerTurn = true;
+            if (_attackDamageVisualProgress > 1f) BattleManager.Instance.IsPlayerTurn = true;
             
             leftAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, _weightedAttackDamageVisualProgress * -135f);
             rightAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, _weightedAttackDamageVisualProgress * 135f);
@@ -79,7 +94,7 @@ public class PlayerAttack : MonoBehaviour
 
     private void OnAttackStarted(InputAction.CallbackContext obj)
     {
-        if (GameManager.PlayerAttackCharge >= 1f)
+        if (PlayerAttackCharge >= 1f)
         {
             if (!HasHitEnemy)
             {
@@ -93,7 +108,7 @@ public class PlayerAttack : MonoBehaviour
                 else
                 {
                     Debug.Log("Miss!");
-                    GameManager.IsPlayerTurn = true;
+                    BattleManager.Instance.IsPlayerTurn = true;
                 }
             }
             else
@@ -103,7 +118,7 @@ public class PlayerAttack : MonoBehaviour
 
                 _enemy.TakeDamage(damageGiven);
                 Debug.Log(damageGiven);
-                GameManager.IsPlayerTurn = true;
+                BattleManager.Instance.IsPlayerTurn = true;
             }
         }
     }
@@ -120,7 +135,7 @@ public class PlayerAttack : MonoBehaviour
 
             HasHitEnemy = false;
             _attackDamageVisualProgress = 0f;
-            GameManager.PlayerAttackCharge = 0f;
+            PlayerAttackCharge = 0f;
         }
     }
 }

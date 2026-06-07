@@ -15,12 +15,12 @@ public class Projectiles : MonoBehaviour
 
     void OnEnable()
     {
-        GameManager.OnPlayerTurnChanged += OnPlayerTurnChanged;
+        BattleManager.Instance.OnPlayerTurnChanged += OnPlayerTurnChanged;
     }
 
     void OnDisable()
     {
-        GameManager.OnPlayerTurnChanged -= OnPlayerTurnChanged;
+        BattleManager.Instance.OnPlayerTurnChanged -= OnPlayerTurnChanged;
     }
 
     void Start() => Destroy(gameObject, lifetime);

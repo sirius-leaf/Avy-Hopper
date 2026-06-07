@@ -673,7 +673,7 @@ GameObject:
   - component: {fileID: 276068985}
   - component: {fileID: 276068984}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: Batlle Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2680,6 +2680,7 @@ MonoBehaviour:
   playerHealthBar: {fileID: 1388746422}
   playerChargeBar: {fileID: 259624875}
   playerHealth: {fileID: 50718095}
+  playerAttack: {fileID: 50718096}
   enemyHealthBar:
   - {fileID: 978583506}
   - {fileID: 593161269}
@@ -3336,6 +3337,7 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 276068985}
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 50718092}
@@ -3344,5 +3346,4 @@ SceneRoots:
   - {fileID: 1523678971}
   - {fileID: 1716513025}
   - {fileID: 1076445560}
-  - {fileID: 276068985}
   - {fileID: 1598466016}

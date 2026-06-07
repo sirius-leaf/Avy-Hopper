@@ -1,15 +1,33 @@
 using UnityEngine;
+using System;
+
 [RequireComponent(typeof(SpriteRenderer))]
 
 [RequireComponent(typeof(PlayerAttack))]
 public class PlayerHealth : MonoBehaviour
 {
+    public event Action<int> OnPlayerHealthChanged;
+    public event Action OnPlayerDie;
+    
     public int maxHealth = 10;
     public float iframeDuration = 1f;
 
     private SpriteRenderer _sprite;
     private PlayerAttack _playerAttack;
     private float _iframeTimer;
+    private int _health = 10;
+
+    public int Health
+    {
+        get => _health;
+        set
+        {
+            _health = Mathf.Max(0, value);
+
+            OnPlayerHealthChanged?.Invoke(_health);
+            if (_health <= 0) OnPlayerDie?.Invoke();
+        }
+    }
 
     void Awake()
     {
@@ -19,16 +37,16 @@ public class PlayerHealth : MonoBehaviour
 
     void OnEnable()
     {
-        GameManager.OnPlayerDie += OnPlayerDie;
         _playerAttack.OnHasHitEnemyChanged += OnHasHitEnemyChanged;
+        OnPlayerDie += OnDie;
     }
     void OnDisable()
     {
-        GameManager.OnPlayerDie -= OnPlayerDie;
         _playerAttack.OnHasHitEnemyChanged -= OnHasHitEnemyChanged;
+        OnPlayerDie -= OnDie;
     }
 
-    void Start() => GameManager.PlayerHealth = maxHealth;
+    void Start() => Health = maxHealth;
 
     void Update()
     {
@@ -53,7 +71,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (_iframeTimer > 0) return;
 
-        GameManager.PlayerHealth -= amount;
+        Health -= amount;
         _iframeTimer = iframeDuration;
     }
 
@@ -62,7 +80,7 @@ public class PlayerHealth : MonoBehaviour
         gameObject.tag = hasHitEnemy ? "IgnoreCollision" : "Player";
     }
 
-    private void OnPlayerDie()
+    private void OnDie()
     {
         Debug.Log("You Lose!");
     }

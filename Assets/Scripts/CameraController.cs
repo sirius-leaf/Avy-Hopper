@@ -23,8 +23,8 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        Vector3 currentTurnPos = GameManager.IsPlayerTurn ? playerTurnPos : enemyTurnPos;
-        float currentTurnSize = GameManager.IsPlayerTurn ? playerTurnSize : enemyTurnSize;
+        Vector3 currentTurnPos = BattleManager.Instance.IsPlayerTurn ? playerTurnPos : enemyTurnPos;
+        float currentTurnSize = BattleManager.Instance.IsPlayerTurn ? playerTurnSize : enemyTurnSize;
 
         float expDecayValue = Utils.ExpDecayT(5f);
         transform.position = Vector3.Lerp(transform.position, currentTurnPos, expDecayValue);

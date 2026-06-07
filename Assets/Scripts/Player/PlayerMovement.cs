@@ -55,18 +55,21 @@ public class PlayerMovement : MonoBehaviour
         jump.action.started += OnJumpStart;
         jump.action.canceled += OnJumpStop;
 
-        GameManager.OnPlayerTurnChanged += OnPlayerTurnChanged;
+        if (BattleManager.Instance != null) BattleManager.Instance.OnPlayerTurnChanged += OnPlayerTurnChanged;
     }
 
     void OnDisable()
     {
         jump.action.started -= OnJumpStart;
         jump.action.canceled -= OnJumpStop;
+
+        if (BattleManager.Instance != null) BattleManager.Instance.OnPlayerTurnChanged -= OnPlayerTurnChanged;
     }
 
     void Update()
     {
-        if (GameManager.IsPlayerTurn)
+        bool isPlayerTurn = BattleManager.Instance != null && BattleManager.Instance.IsPlayerTurn;
+        if (isPlayerTurn)
         {
             transform.position = Vector3.Lerp(transform.position, startPos, Utils.ExpDecayT(5f));
 

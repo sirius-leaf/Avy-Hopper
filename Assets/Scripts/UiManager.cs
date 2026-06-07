@@ -7,6 +7,7 @@ public class UiManager : MonoBehaviour
     public Slider playerHealthBar;
     public Slider playerChargeBar;
     public PlayerHealth playerHealth;
+    public PlayerAttack playerAttack;
 
     [Header("Enemy UI")]
     public Slider[] enemyHealthBar = new Slider[3];
@@ -14,20 +15,20 @@ public class UiManager : MonoBehaviour
 
     void OnEnable()
     {
-        GameManager.OnPlayerHealthChanged += OnPlayerHealthChanged;
-        GameManager.OnPlayerAttackChargeChanged += OnPlayerAttackChargeChanged;
+        playerHealth.OnPlayerHealthChanged += OnPlayerHealthChanged;
+        playerAttack.OnPlayerAttackChargeChanged += OnPlayerAttackChargeChanged;
     }
 
     void OnDisable()
     {
-        GameManager.OnPlayerHealthChanged -= OnPlayerHealthChanged;
-        GameManager.OnPlayerAttackChargeChanged -= OnPlayerAttackChargeChanged;
+        playerHealth.OnPlayerHealthChanged -= OnPlayerHealthChanged;
+        playerAttack.OnPlayerAttackChargeChanged -= OnPlayerAttackChargeChanged;
     }
 
     void Start()
     {
         playerHealthBar.maxValue = playerHealth.maxHealth;
-        playerHealthBar.value = GameManager.PlayerHealth;
+        playerHealthBar.value = playerHealth.Health;
 
         for (int i = 0; i < 3; i++)
         {
@@ -53,13 +54,6 @@ public class UiManager : MonoBehaviour
         }
     }
 
-    private void OnPlayerHealthChanged(int value)
-    {
-        playerHealthBar.value = value;
-    }
-    
-    private void OnPlayerAttackChargeChanged(float value)
-    {
-        playerChargeBar.value = value;
-    }
+    private void OnPlayerHealthChanged(int value) => playerHealthBar.value = value;
+    private void OnPlayerAttackChargeChanged(float value) => playerChargeBar.value = value;
 }
