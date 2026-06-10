@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 2982819376737392971}
   - component: {fileID: 766854613826168848}
   - component: {fileID: 5966590380087247493}
+  - component: {fileID: 3695451195607911388}
+  - component: {fileID: -4928552498307855757}
   m_Layer: 6
   m_Name: Enemy
   m_TagString: Untagged
@@ -182,3 +184,30 @@ MonoBehaviour:
   maxSpawnPos: {x: 0, y: 0}
   offset: {x: 12, y: -4}
   spawnPosCenter: {fileID: 0}
+--- !u!114 &3695451195607911388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4102675782388808414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da1c428d01402566d8d3c3d74d8d617e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-4928552498307855757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4102675782388808414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ed66098597795a39adc5cd81f5cb649, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 2
+  stayDurationRange: {x: 0.5, y: 2}
+  posXMoveRange: {x: -7, y: 7}

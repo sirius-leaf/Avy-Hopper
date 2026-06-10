@@ -55,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
         jump.action.started += OnJumpStart;
         jump.action.canceled += OnJumpStop;
 
-        if (BattleManager.Instance != null) BattleManager.Instance.OnPlayerTurnChanged += OnPlayerTurnChanged;
+        if (BattleManager.Instance != null) BattleManager.Instance.OnCurrentBattleStateChanged += OnCurrentBattleStateChanged;
     }
 
     void OnDisable()
@@ -63,37 +63,38 @@ public class PlayerMovement : MonoBehaviour
         jump.action.started -= OnJumpStart;
         jump.action.canceled -= OnJumpStop;
 
-        if (BattleManager.Instance != null) BattleManager.Instance.OnPlayerTurnChanged -= OnPlayerTurnChanged;
+        if (BattleManager.Instance != null) BattleManager.Instance.OnCurrentBattleStateChanged -= OnCurrentBattleStateChanged;
     }
 
     void Update()
     {
-        bool isPlayerTurn = BattleManager.Instance != null && BattleManager.Instance.IsPlayerTurn;
-        if (isPlayerTurn)
+        if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_TURN)
         {
             transform.position = Vector3.Lerp(transform.position, startPos, Utils.ExpDecayT(5f));
 
             return;
         }
+        else if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.ENEMY_TURN)
+        {
+            _moveInput = move.action.ReadValue<Vector2>();
+            _wasGrounded = _isGrounded;
+            _isGrounded = _IsGrounded();
+            if (_jumpBufferCounter > 0f) _jumpBufferCounter -= Time.deltaTime;
 
-        _moveInput = move.action.ReadValue<Vector2>();
-        _wasGrounded = _isGrounded;
-        _isGrounded = _IsGrounded();
-        if (_jumpBufferCounter > 0f) _jumpBufferCounter -= Time.deltaTime;
+            // Ground Checker
+            if (!_wasGrounded && _isGrounded)
+                _jumpsRemaining = maxJumps;
 
-        // Ground Checker
-        if (!_wasGrounded && _isGrounded)
-            _jumpsRemaining = maxJumps;
+            if (_isGrounded)
+                _coyoteTimeCounter = coyoteTime;
+            else
+                _coyoteTimeCounter -= Time.deltaTime;
 
-        if (_isGrounded)
-            _coyoteTimeCounter = coyoteTime;
-        else
-            _coyoteTimeCounter -= Time.deltaTime;
+            // Movement Control
+            _rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, _rb.linearVelocity.y);
 
-        // Movement Control
-        _rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, _rb.linearVelocity.y);
-
-        Jump();
+            Jump();
+        }
     }
 
     void OnDrawGizmosSelected()
@@ -124,9 +125,9 @@ public class PlayerMovement : MonoBehaviour
             || hitRight.collider!= null;
     }
 
-    private void OnPlayerTurnChanged(bool playerTurn)
+    private void OnCurrentBattleStateChanged(BattleManager.BattleState battleState)
     {
-        if (playerTurn)
+        if (battleState == BattleManager.BattleState.PLAYER_TURN)
         {
             _rb.gravityScale = 0f;
             _rb.linearVelocity = Vector2.zero;

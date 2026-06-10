@@ -5,24 +5,26 @@ public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance { get; private set; }
 
-    public event Action<bool> OnPlayerTurnChanged;
-
-    private bool _isPlayerTurn;
-
-    public bool IsPlayerTurn
+    public enum BattleState
     {
-        get => _isPlayerTurn;
-        set
-        {
-            _isPlayerTurn = value;
-
-            OnPlayerTurnChanged?.Invoke(_isPlayerTurn);
-        }
+        PLAYER_TURN = 0,
+        ENEMY_TURN = 1,
+        PLAYER_ATTACK = 2,
     }
 
-    public void ToggleTurn()
+    public event Action<BattleState> OnCurrentBattleStateChanged;
+
+    private BattleState _currentBattleState;
+
+    public BattleState CurrentBattleState
     {
-        IsPlayerTurn = !IsPlayerTurn;
+        get => _currentBattleState;
+        set
+        {
+            _currentBattleState = value;
+
+            OnCurrentBattleStateChanged?.Invoke(_currentBattleState);
+        }
     }
 
     void Awake()
@@ -36,6 +38,6 @@ public class BattleManager : MonoBehaviour
         Instance = this;
 
         // Set Default Value
-        IsPlayerTurn = true;
+        CurrentBattleState = BattleState.PLAYER_TURN;
     }
 }

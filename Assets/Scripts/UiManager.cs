@@ -54,6 +54,9 @@ public class UiManager : MonoBehaviour
         }
     }
 
+    public void SetAttackBattleState()
+        => BattleManager.Instance.CurrentBattleState = BattleManager.BattleState.ENEMY_TURN;
+
     private void OnPlayerHealthChanged(int value) => playerHealthBar.value = value;
     private void OnPlayerAttackChargeChanged(float value) => playerChargeBar.value = value;
 }

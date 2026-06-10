@@ -36,8 +36,9 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            Vector3 currentTurnPos = BattleManager.Instance.IsPlayerTurn ? playerTurnPos : enemyTurnPos;
-            float currentTurnSize = BattleManager.Instance.IsPlayerTurn ? playerTurnSize : enemyTurnSize;
+            bool isPlayerTurn = BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_TURN;
+            Vector3 currentTurnPos = isPlayerTurn ? playerTurnPos : enemyTurnPos;
+            float currentTurnSize = isPlayerTurn ? playerTurnSize : enemyTurnSize;
 
             float expDecayValue = Utils.ExpDecayT(5f);
             transform.position = Vector3.Lerp(transform.position, currentTurnPos, expDecayValue);

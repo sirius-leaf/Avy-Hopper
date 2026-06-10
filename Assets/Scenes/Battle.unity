@@ -1432,6 +1432,67 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1001 &1023662106
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.29
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2981116934870519818, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4102675782388808414, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_Name
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 4102675782388808414, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
 --- !u!1 &1052999959
 GameObject:
   m_ObjectHideFlags: 0
@@ -2031,7 +2092,7 @@ MonoBehaviour:
   encounterData: {fileID: 11400000, guid: 4ccb658eb5a38a6919c0aced609b3fa9, type: 2}
   enemies:
   - {fileID: 4102675782388808414, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
-  - {fileID: 0}
+  - {fileID: 4102675782388808414, guid: 2c672ba78c6ca22a3a36dc0ceff8a75d, type: 3}
   - {fileID: 0}
 --- !u!1 &1669921372
 GameObject:
@@ -2321,9 +2382,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 276068984}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: ToggleTurn
+      - m_Target: {fileID: 1716513026}
+        m_TargetAssemblyTypeName: UiManager, Assembly-CSharp
+        m_MethodName: SetAttackBattleState
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2892,3 +2953,4 @@ SceneRoots:
   - {fileID: 1716513025}
   - {fileID: 1076445560}
   - {fileID: 1598466016}
+  - {fileID: 1023662106}

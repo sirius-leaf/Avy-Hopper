@@ -15,12 +15,12 @@ public class Projectiles : MonoBehaviour
 
     void OnEnable()
     {
-        BattleManager.Instance.OnPlayerTurnChanged += OnPlayerTurnChanged;
+        BattleManager.Instance.OnCurrentBattleStateChanged += OnCurrentBattleStateChanged;
     }
 
     void OnDisable()
     {
-        BattleManager.Instance.OnPlayerTurnChanged -= OnPlayerTurnChanged;
+        BattleManager.Instance.OnCurrentBattleStateChanged -= OnCurrentBattleStateChanged;
     }
 
     void Start() => Destroy(gameObject, lifetime);
@@ -35,9 +35,9 @@ public class Projectiles : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void OnPlayerTurnChanged(bool playerTurn)
+    private void OnCurrentBattleStateChanged(BattleManager.BattleState battleState)
     {
-        if (playerTurn) Destroy(gameObject);
+        if (battleState != BattleManager.BattleState.ENEMY_TURN) Destroy(gameObject);
     }
 }
 

@@ -2,8 +2,6 @@ using UnityEngine;
 using System;
 
 [RequireComponent(typeof(SpriteRenderer))]
-
-[RequireComponent(typeof(PlayerAttack))]
 public class PlayerHealth : MonoBehaviour
 {
     public event Action<int> OnPlayerHealthChanged;
@@ -13,7 +11,6 @@ public class PlayerHealth : MonoBehaviour
     public float iframeDuration = 1f;
 
     private SpriteRenderer _sprite;
-    private PlayerAttack _playerAttack;
     private float _iframeTimer;
     private int _health = 10;
 
@@ -32,17 +29,16 @@ public class PlayerHealth : MonoBehaviour
     void Awake()
     {
         _sprite = GetComponent<SpriteRenderer>();
-        _playerAttack = GetComponent<PlayerAttack>();
     }
 
     void OnEnable()
     {
-        _playerAttack.OnHasHitEnemyChanged += OnHasHitEnemyChanged;
+        BattleManager.Instance.OnCurrentBattleStateChanged += OnCurrentBattleStateChanged;
         OnPlayerDie += OnDie;
     }
     void OnDisable()
     {
-        _playerAttack.OnHasHitEnemyChanged -= OnHasHitEnemyChanged;
+        BattleManager.Instance.OnCurrentBattleStateChanged -= OnCurrentBattleStateChanged;
         OnPlayerDie -= OnDie;
     }
 
@@ -57,7 +53,7 @@ public class PlayerHealth : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (_playerAttack.HasHitEnemy) return;
+        if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_ATTACK) return;
 
         switch (collision.tag)
         {
@@ -75,9 +71,10 @@ public class PlayerHealth : MonoBehaviour
         _iframeTimer = iframeDuration;
     }
 
-    private void OnHasHitEnemyChanged(bool hasHitEnemy)
+    private void OnCurrentBattleStateChanged(BattleManager.BattleState battleState)
     {
-        gameObject.tag = hasHitEnemy ? "IgnoreCollision" : "Player";
+        gameObject.tag = BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_ATTACK
+            ? "IgnoreCollision" : "Player";
     }
 
     private void OnDie()

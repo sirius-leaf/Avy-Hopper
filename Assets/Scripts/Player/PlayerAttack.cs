@@ -4,7 +4,6 @@ using System;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public event Action<bool> OnHasHitEnemyChanged;
     public event Action<float> OnPlayerAttackChargeChanged;
 
     [Header("Attack Properties")]
@@ -24,19 +23,7 @@ public class PlayerAttack : MonoBehaviour
     private float _weightedAttackDamageVisualProgress = 0f;
     
     private EnemyHealth _enemy;
-    private bool _hasHitEnemy;
     private float _playerAttackCharge;
-
-    public bool HasHitEnemy
-    {
-        get => _hasHitEnemy;
-        private set
-        {
-            _hasHitEnemy = value;
-
-            OnHasHitEnemyChanged?.Invoke(_hasHitEnemy);
-        }
-    }
 
     public float PlayerAttackCharge
     {
@@ -52,76 +39,70 @@ public class PlayerAttack : MonoBehaviour
     void OnEnable()
     {
         attack.action.started += OnAttackStarted;
-        BattleManager.Instance.OnPlayerTurnChanged += OnPlayerTurnChanged;
+        BattleManager.Instance.OnCurrentBattleStateChanged += OnCurrentBattleStateChanged;
     }
 
     void OnDisable()
     {
         attack.action.started -= OnAttackStarted;
-        BattleManager.Instance.OnPlayerTurnChanged -= OnPlayerTurnChanged;
+        BattleManager.Instance.OnCurrentBattleStateChanged -= OnCurrentBattleStateChanged;
     }
 
     void Update()
     {
-        if (BattleManager.Instance.IsPlayerTurn) return;
-        else PlayerAttackCharge += Time.deltaTime / chargeDuration;
-        
-        if(HasHitEnemy)
+        if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.ENEMY_TURN)
+            PlayerAttackCharge += Time.deltaTime / chargeDuration;
+        else if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_ATTACK)
         {
+            _attackDamageVisualProgress += Time.deltaTime / attackDamageVisualDuration;
+            _weightedAttackDamageVisualProgress = Mathf.Pow(_attackDamageVisualProgress, weight);
+            
             leftAttackDamageVisual.gameObject.SetActive(true);
             rightAttackDamageVisual.gameObject.SetActive(true);
             
-            _attackDamageVisualProgress += Time.deltaTime / attackDamageVisualDuration;
-            _weightedAttackDamageVisualProgress = Mathf.Pow(_attackDamageVisualProgress, weight);
 
-            if (_attackDamageVisualProgress > 1f) BattleManager.Instance.IsPlayerTurn = true;
+            if (_attackDamageVisualProgress > 1f) BattleManager.Instance.CurrentBattleState = BattleManager.BattleState.PLAYER_TURN;
             
             leftAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, _weightedAttackDamageVisualProgress * -135f);
             rightAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, _weightedAttackDamageVisualProgress * 135f);
         }
     }
 
-    private RaycastHit2D HitEnemy()
-    {
-        Vector2 origin = new(transform.position.x, -5f);
-
-        return Physics2D.Raycast(origin, Vector2.up, 10f, enemyLayer);
-    }
-
     private void OnAttackStarted(InputAction.CallbackContext obj)
     {
         if (PlayerAttackCharge >= 1f)
         {
-            if (!HasHitEnemy)
+            if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.ENEMY_TURN)
             {
-                RaycastHit2D hitEnemy = HitEnemy();
+                Vector2 origin = new(transform.position.x, -5f);
+                RaycastHit2D hitEnemy = Physics2D.Raycast(origin, Vector2.up, 10f, enemyLayer);
 
                 if (hitEnemy.collider != null)
                 {
                     _enemy = hitEnemy.collider.gameObject.GetComponent<EnemyHealth>();
-                    HasHitEnemy = true;
+                    BattleManager.Instance.CurrentBattleState = BattleManager.BattleState.PLAYER_ATTACK;
                 }
                 else
                 {
                     Debug.Log("Miss!");
-                    BattleManager.Instance.IsPlayerTurn = true;
+                    BattleManager.Instance.CurrentBattleState = BattleManager.BattleState.PLAYER_TURN;
                 }
             }
-            else
+            else if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_ATTACK)
             {
                 float damageMultiplier = damageMultiplierCurve.Evaluate(_weightedAttackDamageVisualProgress);
                 int damageGiven = Mathf.CeilToInt(damage * damageMultiplier);
 
                 _enemy.TakeDamage(damageGiven);
                 Debug.Log(damageGiven);
-                BattleManager.Instance.IsPlayerTurn = true;
+                BattleManager.Instance.CurrentBattleState = BattleManager.BattleState.PLAYER_TURN;
             }
         }
     }
 
-    private void OnPlayerTurnChanged(bool isPlayerTurn)
+    private void OnCurrentBattleStateChanged(BattleManager.BattleState battleState)
     {
-        if (isPlayerTurn)
+        if (battleState == BattleManager.BattleState.PLAYER_TURN)
         {
             leftAttackDamageVisual.gameObject.SetActive(false);
             rightAttackDamageVisual.gameObject.SetActive(false);
@@ -129,7 +110,6 @@ public class PlayerAttack : MonoBehaviour
             leftAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, 0f);
             rightAttackDamageVisual.rotation = Quaternion.Euler(0f, 0f, 0f);
 
-            HasHitEnemy = false;
             _attackDamageVisualProgress = 0f;
             PlayerAttackCharge = 0f;
         }
