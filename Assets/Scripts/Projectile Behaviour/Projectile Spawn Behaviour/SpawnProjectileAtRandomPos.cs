@@ -10,12 +10,22 @@ public class SpawnProjectileAtRandomPos : MonoBehaviour, IProjectileSpawnBehavio
     public Vector2 offset;
     public Transform spawnPosCenter; // null = global position
 
+    [Header("Override Projectile Movement")]
+    public bool isOverrideProjectileMovement = false;
+    public float projectileAngle = 0f;
+    public float moveSpeed = 10f;
+
     public void Spawn(GameObject prefab)
     {
         Vector3 finalSpawnPos = new(Random.Range(minSpawnPos.x, maxSpawnPos.x), Random.Range(minSpawnPos.y, maxSpawnPos.y), 0f);
         finalSpawnPos += (spawnPosCenter != null ? spawnPosCenter.position : Vector3.zero) + (Vector3)offset;
 
-        Instantiate(prefab, finalSpawnPos, Quaternion.identity);
+        GameObject projectile = Instantiate(prefab, finalSpawnPos, Quaternion.identity);
+        if (isOverrideProjectileMovement)
+        {
+            projectile.transform.eulerAngles = new Vector3(0f, 0f, projectileAngle);
+            projectile.GetComponent<IProjectileMovement>().MoveSpeed = moveSpeed;
+        }
     }
 
     void OnDrawGizmosSelected()

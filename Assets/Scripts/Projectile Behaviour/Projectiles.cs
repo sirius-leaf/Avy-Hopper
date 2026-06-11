@@ -43,6 +43,8 @@ public class Projectiles : MonoBehaviour
 
 public interface IProjectileMovement
 {
+    float MoveSpeed { get; set; }
+    
     void Move(Transform projectileTransform);
 }
 

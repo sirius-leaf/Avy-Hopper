@@ -127,7 +127,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCurrentBattleStateChanged(BattleManager.BattleState battleState)
     {
-        if (battleState == BattleManager.BattleState.PLAYER_TURN)
+        if (battleState != BattleManager.BattleState.ENEMY_TURN)
         {
             _rb.gravityScale = 0f;
             _rb.linearVelocity = Vector2.zero;

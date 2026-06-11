@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ProjectileLinearMove : MonoBehaviour, IProjectileMovement
 {
-    public float speed = 10f;
+    public float MoveSpeed { get; set; } = 10f;
     public float direction = 0f;
 
     public void Move(Transform t)
@@ -10,6 +10,6 @@ public class ProjectileLinearMove : MonoBehaviour, IProjectileMovement
         float radDir = direction * Mathf.Deg2Rad;
         Vector2 dirVector = new(Mathf.Cos(radDir), Mathf.Sin(radDir));
 
-        t.Translate(speed * Time.deltaTime * dirVector);
+        t.Translate(MoveSpeed * Time.deltaTime * dirVector);
     }
 }
