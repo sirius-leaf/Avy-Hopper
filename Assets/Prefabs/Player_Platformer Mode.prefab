@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5741181147945343195, guid: 08cf56e062f51ac83875908a233cde82, type: 3}
+      propertyPath: isPlatformerMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7923298609726717004, guid: 08cf56e062f51ac83875908a233cde82, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

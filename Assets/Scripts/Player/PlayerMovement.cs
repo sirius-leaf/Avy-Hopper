@@ -33,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Other")]
     public Vector3 startPos;
+    public bool isPlatformerMode = false;
 
     private Rigidbody2D _rb;
     private Collider2D _col;
@@ -68,13 +69,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_TURN)
+        if (BattleManager.Instance != null && BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.PLAYER_TURN)
         {
             transform.position = Vector3.Lerp(transform.position, startPos, Utils.ExpDecayT(5f));
 
             return;
         }
-        else if (BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.ENEMY_TURN)
+        else if ((BattleManager.Instance != null && BattleManager.Instance.CurrentBattleState == BattleManager.BattleState.ENEMY_TURN) || isPlatformerMode)
         {
             _moveInput = move.action.ReadValue<Vector2>();
             _wasGrounded = _isGrounded;
