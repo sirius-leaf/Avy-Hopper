@@ -113,10 +113,8 @@ public class PlayerMovement : MonoBehaviour
 
     private bool _IsGrounded()
     {
-        // Titik awal ray = bawah tengah collider
         Vector2 origin = new(transform.position.x, _col.bounds.min.y);
 
-        // 3 ray: tengah, kiri, kanan — lebih akurat di tepi platform
         RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
         RaycastHit2D hitLeft = Physics2D.Raycast(origin - rayOffset, Vector2.down, rayLength, groundLayer);
         RaycastHit2D hitRight = Physics2D.Raycast(origin + rayOffset, Vector2.down, rayLength, groundLayer);
@@ -167,7 +165,6 @@ public class PlayerMovement : MonoBehaviour
             
         }
         _jumpReleased = false;
-
     }
 
     private void OnJumpStart(InputAction.CallbackContext obj)
