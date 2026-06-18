@@ -1,5 +1,7 @@
-using UnityEngine;
 using System;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class BattleManager : MonoBehaviour
     public event Action<BattleState> OnCurrentBattleStateChanged;
 
     private BattleState _currentBattleState;
+    private UiManager _ui;
 
     public BattleState CurrentBattleState
     {
@@ -39,5 +42,25 @@ public class BattleManager : MonoBehaviour
 
         // Set Default Value
         CurrentBattleState = BattleState.PLAYER_TURN;
+    }
+
+    void Start()
+    {
+        _ui = FindFirstObjectByType<UiManager>();
+    }
+
+    void Update()
+    {
+        int nullEnemyCount = _ui.enemyHealth.Count(item => item == null);
+
+        if (nullEnemyCount >= 3)
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.RegisterEnemyDefeat(GameManager.Instance.lastEnemyEncounteredId);
+            }
+            
+            SceneManager.LoadScene(GameManager.Instance.lastExploreSceneId);
+        }
     }
 }

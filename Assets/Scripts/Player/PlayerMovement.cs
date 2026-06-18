@@ -6,34 +6,34 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Input")]
-    public InputActionReference move;
-    public InputActionReference jump;
+    [SerializeField] private InputActionReference move;
+    [SerializeField] private InputActionReference jump;
 
     [Header("Movement")]
-    public float moveSpeed = 7f;
+    [SerializeField] private float moveSpeed = 7f;
 
     [Header("Jump")]
-    public int maxJumps = 2;
-    public float jumpForce = 12f;
-    public float doubleJumpForce = 10f;
-    public float jumpCutMultiplier = 0.5f;
-    public float minJumpVelocity = 3f;
+    [SerializeField] private int maxJumps = 2;
+    [SerializeField] private float jumpForce = 12f;
+    [SerializeField] private float doubleJumpForce = 10f;
+    [SerializeField] private float jumpCutMultiplier = 0.5f;
+    [SerializeField] private float minJumpVelocity = 3f;
     private int _jumpsRemaining;
 
     [Header("Ground Check - Raycast")]
-    public float rayLength = 0.1f; // Jarak ray ke bawah
-    public LayerMask groundLayer;
-    public Vector2 rayOffset = new Vector2(0.2f, 0f); // Offset kiri/kanan
+    [SerializeField] private float rayLength = 0.1f; // Jarak ray ke bawah
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Vector2 rayOffset = new Vector2(0.2f, 0f); // Offset kiri/kanan
 
     [Header("Coyote Time & Jump Buffer")]
-    public float coyoteTime = 0.15f;
-    public float jumpBufferTime = 0.1f;
+    [SerializeField] private float coyoteTime = 0.15f;
+    [SerializeField] private float jumpBufferTime = 0.1f;
     private float _coyoteTimeCounter;
     private float _jumpBufferCounter;
 
     [Header("Other")]
-    public Vector3 startPos;
-    public bool isPlatformerMode = false;
+    [SerializeField] private Vector3 startPos;
+    [SerializeField] private bool isPlatformerMode = false;
 
     private Rigidbody2D _rb;
     private Collider2D _col;
@@ -49,6 +49,9 @@ public class PlayerMovement : MonoBehaviour
         _col = GetComponent<Collider2D>();
 
         _jumpsRemaining = maxJumps;
+
+        if (isPlatformerMode && GameManager.Instance.lastExplorePosition != Vector3.zero)
+            transform.position = GameManager.Instance.lastExplorePosition;
     }
 
     void OnEnable()

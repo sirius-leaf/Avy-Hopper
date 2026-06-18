@@ -4,13 +4,13 @@ using UnityEngine.UI;
 public class UiManager : MonoBehaviour
 {
     [Header("Player UI")]
-    public Slider playerHealthBar;
-    public Slider playerChargeBar;
-    public PlayerHealth playerHealth;
-    public PlayerAttack playerAttack;
+    [SerializeField] private Slider playerHealthBar;
+    [SerializeField] private Slider playerChargeBar;
+    [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private PlayerAttack playerAttack;
 
     [Header("Enemy UI")]
-    public Slider[] enemyHealthBar = new Slider[3];
+    [SerializeField] private Slider[] enemyHealthBar = new Slider[3];
     public EnemyHealth[] enemyHealth = new EnemyHealth[3];
 
     void OnEnable()

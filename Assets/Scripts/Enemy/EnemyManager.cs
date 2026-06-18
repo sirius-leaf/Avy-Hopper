@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    public EncounterData encounterData;
-    public GameObject[] enemies = new GameObject[3];
+    [SerializeField] private EncounterData encounterData;
+    [SerializeField] private GameObject[] enemies = new GameObject[3];
 
     private UiManager _ui;
 
