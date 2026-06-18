@@ -17,6 +17,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5741181147945343195, guid: 08cf56e062f51ac83875908a233cde82, type: 3}
+      propertyPath: minJumpVelocity
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741181147945343195, guid: 08cf56e062f51ac83875908a233cde82, type: 3}
       propertyPath: isPlatformerMode
       value: 1
       objectReference: {fileID: 0}
