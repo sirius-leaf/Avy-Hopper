@@ -43352,6 +43352,7 @@ GameObject:
   - component: {fileID: 2076009684}
   - component: {fileID: 2076009683}
   - component: {fileID: 2076009682}
+  - component: {fileID: 2076009687}
   m_Layer: 0
   m_Name: Win Tiles
   m_TagString: Untagged
@@ -43660,6 +43661,21 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &2076009687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076009680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0457b287f5518634a6f7e15150bff34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChangeScene
+  otherScene:
+    asset: {fileID: 102900000, guid: 98713801195aad4aebe2063c3416a0ea, type: 3}
+    guid: 98713801195aad4aebe2063c3416a0ea
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
